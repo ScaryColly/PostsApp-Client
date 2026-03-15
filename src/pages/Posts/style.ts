@@ -15,5 +15,8 @@ export const useStyles = () => {
       top: "10rem",
       left: "10rem",
     }),
+    title: css({
+      fontWeight: "bold",
+    }),
   };
 };

@@ -15,5 +15,8 @@ export const useStyles = () => {
       width: "50vw",
       maxWidth: "100%",
     }),
+    title: css({
+      fontWeight: 600,
+    }),
   };
 };

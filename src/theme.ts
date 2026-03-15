@@ -16,6 +16,6 @@ export const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: '"DynaPuff", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Playpen Sans Hebrew", sans-serif',
   },
 });
