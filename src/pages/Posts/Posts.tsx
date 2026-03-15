@@ -1,6 +1,6 @@
 import { Button, Skeleton, Stack, Tooltip, Typography } from "@mui/material";
 import { useState } from "react";
-import { Post } from "../../components";
+import { PostsList } from "../../components";
 import { PostModal } from "../../components/PostModal/PostModal";
 import type { PostFormValues, UpsertPost } from "../../requests/posts";
 import type { Post as PostType } from "../../types";
@@ -77,19 +77,10 @@ export const Posts = () => {
           </Button>
         </Tooltip>
       </Stack>
-      {isLoading && <Skeleton variant="rectangular" height={200} />}
-      {posts.length === 0 ? (
-        <Typography>עוד לא פורסמו פוסטים</Typography>
+      {isLoading ? (
+        <Skeleton variant="rectangular" height={200} />
       ) : (
-        <Stack alignItems="center" gap={5} mt={4}>
-          {posts.map((post) => (
-            <Post
-              key={post.id}
-              post={post}
-              onClick={() => openPostDetailsModal(post)}
-            />
-          ))}
-        </Stack>
+        <PostsList posts={posts} onPostClick={openPostDetailsModal} />
       )}
       <PostModal
         isOpen={isModalOpen}
