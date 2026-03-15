@@ -11,19 +11,23 @@ export const Post: FC<PostProps> = ({
     content,
     createdBy: { username },
   },
+  onClick,
 }: PostProps) => {
   const classes = useStyles();
 
   return (
-    <Paper elevation={2} className={classes.postContainer}>
+    <Paper
+      elevation={2}
+      className={classes.postContainer}
+      onClick={onClick}
+      sx={{ cursor: onClick ? "pointer" : "default" }}
+    >
       <Stack direction="row" alignItems="center">
         <Stack>
           <UserAvatar username={username} />
-          <Typography className={classes.avatarTitle} gutterBottom>
-            {username}
-          </Typography>
+          <Typography className={classes.avatarTitle}>{username}</Typography>
         </Stack>
-        <Typography variant="h5" gutterBottom>
+        <Typography className={classes.title} variant="h5" gutterBottom>
           {title}
         </Typography>
       </Stack>
