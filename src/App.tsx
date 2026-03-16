@@ -12,7 +12,6 @@ import { theme } from "./theme";
 const queryClient = new QueryClient();
 
 export const App = () => {
-  console.log("bla" + import.meta.env.VITE_GOOGLE_CLIENT_ID)
   return (
     <StyledEngineProvider injectFirst>
       <QueryClientProvider client={queryClient}>
