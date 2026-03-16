@@ -8,16 +8,12 @@ import { useCreatePost } from "./queries/createPost";
 import { useGetAllPosts } from "./queries/getAllPosts";
 import { useUpdatePost } from "./queries/updatePost";
 import { useStyles } from "./style";
-
-const TEMP_CONNECTED_USER_STORAGE_KEY = "connectedUserId";
-const TEMP_FALLBACK_CONNECTED_USER_ID = "69b6f0ae229ece9c7dda0883";
-
-const getConnectedUserId = () => {
-  const id = window.localStorage.getItem(TEMP_CONNECTED_USER_STORAGE_KEY);
-  return id?.trim() || TEMP_FALLBACK_CONNECTED_USER_ID;
-};
+import { useAuth } from "../../context/AuthContext";
 
 export const Posts = () => {
+  const { user } = useAuth();
+
+  const getConnectedUserId = () => user?._id || "";
   const classes = useStyles();
 
   const { data: posts = [], isLoading } = useGetAllPosts();
