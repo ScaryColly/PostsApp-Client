@@ -6,6 +6,7 @@ import { useStyles } from "./style";
 import type { CommentProps } from "./types";
 
 export const Comment: FC<CommentProps> = ({ comment }) => {
+  
   const { data: commentUser } = useGetUserById(comment.createdBy);
   const classes = useStyles();
 

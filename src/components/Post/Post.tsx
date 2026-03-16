@@ -23,7 +23,8 @@ export const Post: FC<PostProps> = ({
   const navigate = useNavigate();
   const { data: commentCount = 0 } = useGetCommentCount(id);
   const { user } = useAuth();
-
+  
+  
   const { data: postUser } = useGetUserById(createdBy);
 
   const handleEdit = () => {

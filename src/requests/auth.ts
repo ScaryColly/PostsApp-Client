@@ -9,18 +9,19 @@ export type AuthResponse = User & {
 
 export type LogoutPayload = {
   refreshToken: string;
+  
 };
 
 export const login = async (payload: LoginPayload) => {
   return apiClient.post<AuthResponse>("/users/login", payload);
 };
 
-export const register = async (payload: RegisterPayload) => {
-  return apiClient.post<AuthResponse>("/users/register", payload);
+export const register = async (formData: FormData) => {
+  return apiClient.post<AuthResponse>("/users/register", formData);
 };
 
 export const googleLogin = async (idToken: string) => {
-  return apiClient.post<AuthResponse>("/users/google-login", { idToken });
+  return apiClient.post<AuthResponse>("/users/google", { idToken });
 };
 
 export const getMe = async () => {
@@ -28,7 +29,8 @@ export const getMe = async () => {
 };
 
 export const updateMe = async (formData: FormData) => {
-  return apiClient.put<User>("/users/me", formData);
+  return apiClient.put<User>("/users/me", formData, {
+  });
 };
 
 export const logout = async (payload: LogoutPayload) => {
