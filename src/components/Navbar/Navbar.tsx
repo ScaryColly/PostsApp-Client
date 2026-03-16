@@ -1,4 +1,4 @@
-import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
+import { AppBar, Box, Button, Toolbar, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 import { useStyles } from "./style";
 
@@ -18,7 +18,7 @@ export const Navbar = () => {
             component={Link}
             to="/"
           >
-            Home
+            בית
           </Button>
           <Button
             className={classes.navItem}
@@ -26,7 +26,7 @@ export const Navbar = () => {
             component={Link}
             to="/posts"
           >
-            Posts
+            פוסטים
           </Button>
           <Button
             className={classes.navItem}
@@ -34,7 +34,7 @@ export const Navbar = () => {
             component={Link}
             to="/profile"
           >
-            Profile
+            פרופיל
           </Button>
         </Box>
       </Toolbar>
