@@ -7,7 +7,6 @@ export const useCreatePost = () => {
   return useMutation({
     mutationFn: (post: UpsertPost) => createPost(post),
     onSuccess: async () => {
-      console.log("Post created successfully");
       await queryClient.refetchQueries({ queryKey: ["posts"] });
     },
   });

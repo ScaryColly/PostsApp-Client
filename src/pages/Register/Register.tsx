@@ -13,21 +13,27 @@ import {
 import { GoogleLogin } from "@react-oauth/google";
 import { useMemo, useState, type ChangeEvent, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import type { RegisterPayload } from "../../types/auth";
+import { useGoogleRegister } from "./queries/googleRegister";
+import { useRegister } from "./queries/register";
 import { useStyles } from "./style";
 
 export const Register = () => {
-  const { register, googleLogin } = useAuth();
   const navigate = useNavigate();
   const classes = useStyles();
+  const {
+    mutate: registerUser,
+    isPending: isSubmitting,
+    isError,
+  } = useRegister();
+  const { mutate: registerWithGoogle, isPending: isGoogleSubmitting } =
+    useGoogleRegister();
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [error, setError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
 
   const previewUrl = useMemo(() => {
     if (!selectedFile) {
@@ -41,7 +47,7 @@ export const Register = () => {
     setSelectedFile(file);
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -55,31 +61,33 @@ export const Register = () => {
       return;
     }
 
-    try {
-      setIsSubmitting(true);
+    const payload: RegisterPayload = {
+      username: username.trim(),
+      email: email.trim(),
+      password,
+      profileImage: null,
+    };
 
-      const formData = new FormData();
-      formData.append("username", username.trim());
-      formData.append("email", email.trim());
-      formData.append("password", password);
-
-      if (selectedFile) {
-        formData.append("profileImage", selectedFile);
-      }
-
-      await register(formData);
-      navigate("/profile");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "הרשמה נכשלה");
-    } finally {
-      setIsSubmitting(false);
-    }
+    registerUser(payload);
   };
 
   return (
-    <Stack alignItems="center" justifyContent="center" sx={{ py: 6, px: 2 }} className={classes.stack}>
-      <Paper elevation={3} sx={{ width: "100%", maxWidth: 520, p: 4, borderRadius: 4 }}>
-        <Typography variant="h4" fontWeight="bold" gutterBottom textAlign="center">
+    <Stack
+      alignItems="center"
+      justifyContent="center"
+      sx={{ py: 6, px: 2 }}
+      className={classes.stack}
+    >
+      <Paper
+        elevation={3}
+        sx={{ width: "100%", maxWidth: 520, p: 4, borderRadius: 4 }}
+      >
+        <Typography
+          variant="h4"
+          fontWeight="bold"
+          gutterBottom
+          textAlign="center"
+        >
           הרשמה
         </Typography>
 
@@ -87,7 +95,7 @@ export const Register = () => {
           יצירת חשבון חדש למערכת
         </Typography>
 
-        {error && (
+        {(error || isError) && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {error}
           </Alert>
@@ -96,7 +104,10 @@ export const Register = () => {
         <Box component="form" onSubmit={handleSubmit}>
           <Stack spacing={2}>
             <Stack alignItems="center" spacing={1}>
-              <Avatar src={previewUrl || undefined} sx={{ width: 88, height: 88 }}>
+              <Avatar
+                src={previewUrl || undefined}
+                sx={{ width: 88, height: 88 }}
+              >
                 {username?.[0]?.toUpperCase()}
               </Avatar>
 
@@ -140,7 +151,11 @@ export const Register = () => {
               size="large"
               disabled={isSubmitting}
             >
-              {isSubmitting ? <CircularProgress size={24} color="inherit" /> : "הרשמה"}
+              {isSubmitting ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                "הרשמה"
+              )}
             </Button>
 
             <Divider>או</Divider>
@@ -150,24 +165,26 @@ export const Register = () => {
                 <CircularProgress />
               ) : (
                 <GoogleLogin
-                  onSuccess={async (credentialResponse) => {
-                    try {
-                      setError("");
-                      setIsGoogleSubmitting(true);
+                  onSuccess={(credentialResponse) => {
+                    setError("");
 
-                      if (!credentialResponse.credential) {
-                        throw new Error("Google token not received");
-                      }
-
-                      await googleLogin(credentialResponse.credential);
-                      navigate("/profile");
-                    } catch (err) {
-                      setError(
-                        err instanceof Error ? err.message : "Google registration failed",
-                      );
-                    } finally {
-                      setIsGoogleSubmitting(false);
+                    if (!credentialResponse.credential) {
+                      setError("Google token not received");
+                      return;
                     }
+
+                    registerWithGoogle(credentialResponse.credential, {
+                      onSuccess: () => {
+                        navigate("/profile");
+                      },
+                      onError: (err) => {
+                        setError(
+                          err instanceof Error
+                            ? err.message
+                            : "Google registration failed",
+                        );
+                      },
+                    });
                   }}
                   onError={() => {
                     setError("ההרשמה עם גוגל נכשלה");

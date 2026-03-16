@@ -8,6 +8,7 @@ export const useStyles = () => {
     stack: css({
       backgroundColor: theme.palette.secondary.main,
       color: theme.palette.secondary.contrastText,
+      height: "100%",
     }),
     title: css({
       fontFamily: "'Rubik Dirt', cursive",
