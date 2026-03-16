@@ -1,19 +1,15 @@
 import { Box, CircularProgress, Stack, Typography } from "@mui/material";
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { Post as PostType } from "../../types";
 import { Post } from "../Post";
+import type { PostsListProps } from "./types";
 
 const DEFAULT_PAGE_SIZE = 5;
-
-type PostsListProps = {
-  posts: PostType[];
-  onPostClick?: (post: PostType) => void;
-  pageSize?: number;
-};
 
 export const PostsList = ({
   posts,
   onPostClick,
+  onEditClick,
+  onDeleteClick,
   pageSize = DEFAULT_PAGE_SIZE,
 }: PostsListProps) => {
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
@@ -62,7 +58,14 @@ export const PostsList = ({
   return (
     <Stack alignItems="center" gap={5} mt={4}>
       {visiblePosts.map((post) => (
-        <Post key={post.id} post={post} onClick={() => onPostClick?.(post)} />
+        <Post
+          key={post.id}
+          post={post}
+          onClick={() => onPostClick?.(post)}
+          onEditClick={() => onEditClick?.(post)}
+          onDeleteClick={() => onDeleteClick?.(post)}
+          isEditable={Boolean(onEditClick || onDeleteClick)}
+        />
       ))}
       {hasMorePosts && (
         <Box ref={loadMoreRef} sx={{ py: 2 }}>

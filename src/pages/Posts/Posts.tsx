@@ -3,10 +3,8 @@ import { useState } from "react";
 import { PostsList } from "../../components";
 import { PostModal } from "../../components/PostModal/PostModal";
 import type { PostFormValues, UpsertPost } from "../../requests/posts";
-import type { Post as PostType } from "../../types";
 import { useCreatePost } from "./queries/createPost";
 import { useGetAllPosts } from "./queries/getAllPosts";
-import { useUpdatePost } from "./queries/updatePost";
 import { useStyles } from "./style";
 import { useAuth } from "../../context/AuthContext";
 
@@ -18,18 +16,10 @@ export const Posts = () => {
 
   const { data: posts = [], isLoading } = useGetAllPosts();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPost, setSelectedPost] = useState<PostType | undefined>();
 
   const { mutateAsync: addPost, isPending: isCreatingPost } = useCreatePost();
-  const { mutateAsync: editPost, isPending: isEditingPost } = useUpdatePost();
 
   const openCreatePostModal = () => {
-    setSelectedPost(undefined);
-    setIsModalOpen(true);
-  };
-
-  const openPostDetailsModal = (post: PostType) => {
-    setSelectedPost(post);
     setIsModalOpen(true);
   };
 
@@ -37,28 +27,13 @@ export const Posts = () => {
     setIsModalOpen(false);
   };
 
-  const handleEditPost = async (
-    postId: string,
-    updatedPost: PostFormValues,
-  ) => {
-    const originalPost = posts.find((post) => post.id === postId);
-    const createdBy = originalPost?.createdBy?.id;
-
-    const payload: UpsertPost = {
-      ...updatedPost,
-      createdBy: String(createdBy ?? getConnectedUserId()),
-    };
-
-    await editPost({ postId, payload });
-  };
-
-  const handleCreatePost = async (newPost: PostFormValues) => {
-    const payload: UpsertPost = {
-      ...newPost,
+  const handleCreatePost = (post: PostFormValues) => {
+    const newPost: UpsertPost = {
+      ...post,
       createdBy: getConnectedUserId(),
     };
 
-    await addPost(payload);
+    addPost(newPost);
   };
 
   return (
@@ -73,18 +48,16 @@ export const Posts = () => {
           </Button>
         </Tooltip>
       </Stack>
-      {isLoading ? (
-        <Skeleton variant="rectangular" height={200} />
+      {isLoading || isCreatingPost ? (
+        <Skeleton variant="rounded" height={200} />
       ) : (
-        <PostsList posts={posts} onPostClick={openPostDetailsModal} />
+        <PostsList posts={posts} />
       )}
       <PostModal
         isOpen={isModalOpen}
         handleClose={closeModal}
-        post={selectedPost}
         onCreatePost={handleCreatePost}
-        onEditPost={handleEditPost}
-        isSubmitting={isEditingPost || isCreatingPost}
+        isSubmitting={isCreatingPost}
       />
     </Stack>
   );

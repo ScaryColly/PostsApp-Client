@@ -1,10 +1,28 @@
-import { Alert, Box, Paper } from "@mui/material";
-import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { Alert, Box, Button, Paper, Skeleton, Stack, Tooltip, Typography } from "@mui/material";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type FormEvent,
+} from "react";
+
 import { useAuth } from "../../context/AuthContext";
-import { useStyles } from "./style";
+import { PostsList } from "../../components";
+import { PostModal } from "../../components/PostModal/PostModal";
 import { ProfileHeader } from "./ProfileHeader";
 import { ProfileView } from "./ProfileView";
 import { ProfileEditForm } from "./ProfileEditForm";
+import { useStyles } from "./style";
+
+import type { PostFormValues, UpsertPost } from "../../requests/posts";
+import type { Post } from "../../types";
+
+import { useCreatePost } from "../Posts/queries/createPost";
+import { useDeletePost } from "../Posts/queries/deletePost";
+import { useGetPostsByUserId } from "../Posts/queries/getPostsByUserId";
+import { useUpdatePost } from "../Posts/queries/updatePost";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
@@ -22,9 +40,10 @@ const getImageUrl = (profileImage?: string | null) => {
   return `${API_BASE_URL}${profileImage}`;
 };
 
+// TODO: להוסיף כאן את כל המידע שרלוונטי לפרופיל, כמו התגובות שכתב המשתמש וכו'
 export const Profile = () => {
-  const { user, updateProfile } = useAuth();
   const classes = useStyles();
+  const { user, updateProfile } = useAuth();
 
   const [isEditing, setIsEditing] = useState(false);
   const [username, setUsername] = useState("");
@@ -33,7 +52,17 @@ export const Profile = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<Post | undefined>();
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const userId = user?.id || user?._id;
+
+  const { data: userPosts, isLoading } = useGetPostsByUserId(userId ?? "");
+  const { mutateAsync: addPost, isPending: isCreatingPost } = useCreatePost();
+  const { mutateAsync: editPost, isPending: isEditingPost } = useUpdatePost();
+  const { mutateAsync: deletePost, isPending: isDeletingPost } = useDeletePost();
 
   useEffect(() => {
     if (user) {
@@ -42,17 +71,20 @@ export const Profile = () => {
   }, [user]);
 
   const previewUrl = useMemo(() => {
-    if (selectedFile) return URL.createObjectURL(selectedFile);
+    if (selectedFile) {
+      return URL.createObjectURL(selectedFile);
+    }
+
     return getImageUrl(user?.profileImage);
   }, [selectedFile, user?.profileImage]);
 
   useEffect(() => {
     return () => {
-      if (selectedFile && previewUrl.startsWith("blob:")) {
+      if (previewUrl.startsWith("blob:")) {
         URL.revokeObjectURL(previewUrl);
       }
     };
-  }, [previewUrl, selectedFile]);
+  }, [previewUrl]);
 
   const resetMessages = () => {
     setError("");
@@ -117,6 +149,56 @@ export const Profile = () => {
     }
   };
 
+  const openCreatePostModal = () => {
+    setSelectedPost(undefined);
+    setIsModalOpen(true);
+  };
+
+  const openEditPostModal = (post: Post) => {
+    setSelectedPost(post);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedPost(undefined);
+  };
+
+  const handleCreatePost = async (newPost: PostFormValues) => {
+    if (!userId) return;
+
+    const payload: UpsertPost = {
+      ...newPost,
+      createdBy: String(userId),
+    };
+
+    await addPost(payload);
+    closeModal();
+  };
+
+  const handleEditPost = async (postId: string, updatedPost: PostFormValues) => {
+    if (!userId) return;
+
+    const originalPost = userPosts?.find((post) => post.id === postId);
+
+    const payload: UpsertPost = {
+      ...updatedPost,
+      createdBy: String(originalPost?.createdBy?.id ?? userId),
+    };
+
+    await editPost({ postId, payload });
+    closeModal();
+  };
+
+  const handleDeletePost = async (post: Post) => {
+    await deletePost(post.id);
+
+    if (selectedPost?.id === post.id) {
+      setSelectedPost(undefined);
+      setIsModalOpen(false);
+    }
+  };
+
   if (!user) return null;
 
   return (
@@ -162,9 +244,47 @@ export const Profile = () => {
                 onCancel={handleCancelEdit}
               />
             )}
+
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+              mt={4}
+              mb={2}
+            >
+              <Typography variant="h5" className={classes.title}>
+                הפוסטים שלי
+              </Typography>
+
+              <Tooltip placement="top" title="הוספת פוסט חדש">
+                <Button variant="contained" onClick={openCreatePostModal}>
+                  +
+                </Button>
+              </Tooltip>
+            </Stack>
+
+            {isLoading || isDeletingPost || isCreatingPost ? (
+              <Skeleton variant="rectangular" width="100%" height={200} />
+            ) : (
+              <PostsList
+                posts={userPosts ?? []}
+                onEditClick={openEditPostModal}
+                onDeleteClick={handleDeletePost}
+              />
+            )}
           </Box>
         </Paper>
       </Box>
+
+      <PostModal
+        isOpen={isModalOpen}
+        handleClose={closeModal}
+        post={selectedPost}
+        onCreatePost={handleCreatePost}
+        onEditPost={handleEditPost}
+        isSubmitting={isEditingPost || isCreatingPost || isDeletingPost}
+        isEditMode={Boolean(selectedPost)}
+      />
     </Box>
   );
 };

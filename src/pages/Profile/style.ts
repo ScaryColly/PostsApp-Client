@@ -239,7 +239,7 @@ export const useStyles = () => {
       color: `${theme.palette.primary.main} !important`,
       flex: 1,
     }),
-     container: css({
+    container: css({
       backgroundColor: theme.palette.background.default,
       height: "100%",
       padding: "2rem",
@@ -249,7 +249,5 @@ export const useStyles = () => {
       top: "10rem",
       left: "10rem",
     }),
-
   };
 };
-
