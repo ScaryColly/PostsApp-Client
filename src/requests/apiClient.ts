@@ -120,7 +120,7 @@ export const apiClient = {
     options?: Omit<RequestOptions, "body">,
   ) => request<T>("PATCH", url, { ...options, body }),
 
-  delete: <T>(url: string, options?: Omit<RequestOptions, "body">) =>
+  delete: <T>(url: string, options?: RequestOptions) =>
     request<T>("DELETE", url, options),
 };
 

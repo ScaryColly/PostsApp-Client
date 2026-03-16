@@ -1,9 +1,20 @@
 import { Box, Button, Modal, TextField, Typography } from "@mui/material";
-import type { FC, FormEvent } from "react";
-import { useMemo } from "react";
+import type { ChangeEvent, FC, FormEvent } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { PostFormValues } from "../../requests/posts";
 import { useStyles } from "./style";
 import type { PostModalProps } from "./types";
+
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+
+const getImageUrl = (image?: string): string => {
+  if (!image) return "";
+  if (image.startsWith("http://") || image.startsWith("https://")) {
+    return image;
+  }
+  return `${API_BASE_URL}${image}`;
+};
 
 export const PostModal: FC<PostModalProps> = ({
   isOpen,
@@ -15,6 +26,7 @@ export const PostModal: FC<PostModalProps> = ({
   isSubmitting = false,
 }) => {
   const classes = useStyles();
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const modalTitle = post
     ? isEditMode
@@ -25,6 +37,31 @@ export const PostModal: FC<PostModalProps> = ({
   const isSubmitDisabled = useMemo(() => {
     return isSubmitting;
   }, [isSubmitting]);
+
+  const previewImage = useMemo(() => {
+    if (selectedFile) {
+      return URL.createObjectURL(selectedFile);
+    }
+
+    return getImageUrl(post?.image);
+  }, [post?.image, selectedFile]);
+
+  useEffect(() => {
+    return () => {
+      if (previewImage.startsWith("blob:")) {
+        URL.revokeObjectURL(previewImage);
+      }
+    };
+  }, [previewImage]);
+
+  const handleModalClose = () => {
+    setSelectedFile(null);
+    handleClose();
+  };
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setSelectedFile(event.target.files?.[0] || null);
+  };
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -44,6 +81,7 @@ export const PostModal: FC<PostModalProps> = ({
     const payload: PostFormValues = {
       title,
       content,
+      imageFile: selectedFile,
     };
 
     if (post && isEditMode && onEditPost) {
@@ -54,13 +92,13 @@ export const PostModal: FC<PostModalProps> = ({
       onCreatePost(payload);
     }
 
-    handleClose();
+    handleModalClose();
   };
 
   return (
     <Modal
       open={isOpen}
-      onClose={handleClose}
+      onClose={handleModalClose}
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
     >
@@ -93,10 +131,27 @@ export const PostModal: FC<PostModalProps> = ({
             multiline
             minRows={4}
           />
+          <Button component="label" variant="outlined">
+            {selectedFile ? "החלפת תמונה" : "העלאת תמונה"}
+            <input
+              type="file"
+              hidden
+              accept="image/*"
+              onChange={handleFileChange}
+            />
+          </Button>
+          {!!previewImage && (
+            <Box
+              component="img"
+              src={previewImage}
+              alt={post?.title || "post image preview"}
+              className={classes.previewImage}
+            />
+          )}
           <Box className={classes.footer}>
             <Button
               variant="text"
-              onClick={handleClose}
+              onClick={handleModalClose}
               disabled={isSubmitting}
             >
               ביטול

@@ -1,31 +1,45 @@
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import { Box, Paper, Stack, Tooltip, Typography } from "@mui/material";
 import type { FC } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useGetCommentCount } from "../../pages/Comments/queries/getCommentCount";
 import { useGetUserById } from "../../pages/Posts/queries/getUserById";
+import { useTogglePostLike } from "../../pages/Posts/queries/togglePostLike";
 import { IconButton } from "../IconButton";
 import { UserAvatar } from "../UserAvatar";
 import { useStyles } from "./style";
 import type { PostProps } from "./types";
 
 export const Post: FC<PostProps> = ({
-  post: { id, title, content, createdBy },
+  post: { id, title, content, createdBy, image, likes },
   onClick,
   onEditClick,
   onDeleteClick,
   isEditable = false,
 }) => {
+  const API_BASE_URL =
+    import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+
   const classes = useStyles();
   const navigate = useNavigate();
   const { data: commentCount = 0 } = useGetCommentCount(id);
   const { user } = useAuth();
-  
-  
+  const { mutate: toggleLike, isPending: isTogglingLike } = useTogglePostLike();
+
   const { data: postUser } = useGetUserById(createdBy);
+  const likesCount = likes?.length ?? 0;
+  const isLikedByUser = !!user?._id && likes?.includes(user._id);
+
+  const resolvedImage = !image
+    ? ""
+    : image.startsWith("http://") || image.startsWith("https://")
+      ? image
+      : `${API_BASE_URL}${image}`;
 
   const handleEdit = () => {
     onEditClick?.();
@@ -37,6 +51,14 @@ export const Post: FC<PostProps> = ({
 
   const handleCommentsClick = () => {
     navigate(`/posts/${id}/comments`);
+  };
+
+  const handleLikeClick = () => {
+    if (!user?._id || isTogglingLike) {
+      return;
+    }
+
+    toggleLike({ postId: id, userId: user._id, isLiked: isLikedByUser });
   };
 
   return (
@@ -62,6 +84,14 @@ export const Post: FC<PostProps> = ({
           <Typography variant="body1" gutterBottom>
             {content}
           </Typography>
+          {!!resolvedImage && (
+            <Box
+              component="img"
+              src={resolvedImage}
+              alt={title}
+              className={classes.postImage}
+            />
+          )}
         </Box>
         {!!user && (
           <Stack
@@ -81,6 +111,26 @@ export const Post: FC<PostProps> = ({
                   sx={{ lineHeight: 1, mt: -0.5, color: "gray" }}
                 >
                   {commentCount}
+                </Typography>
+              </Stack>
+            </Tooltip>
+            <Tooltip title="לייקים">
+              <Stack alignItems="center">
+                <IconButton
+                  icon={
+                    isLikedByUser ? (
+                      <FavoriteIcon color="error" />
+                    ) : (
+                      <FavoriteBorderIcon />
+                    )
+                  }
+                  onClick={handleLikeClick}
+                />
+                <Typography
+                  variant="caption"
+                  sx={{ lineHeight: 1, mt: -0.5, color: "gray" }}
+                >
+                  {likesCount}
                 </Typography>
               </Stack>
             </Tooltip>
