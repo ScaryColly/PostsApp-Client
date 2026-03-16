@@ -170,7 +170,7 @@ export const useStyles = () => {
       alignItems: "center",
       justifyContent: "center",
       gap: "0.3rem",
-      minHeight: "4rem",   // חצי מהגובה הקודם
+      minHeight: "4rem", // חצי מהגובה הקודם
       padding: "0.5rem",
       borderRadius: "1rem",
       backgroundColor: theme.palette.secondary.main,

@@ -1,4 +1,13 @@
-import { Alert, Box, Button, Paper, Skeleton, Stack, Tooltip, Typography } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Button,
+  Paper,
+  Skeleton,
+  Stack,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import {
   useEffect,
   useMemo,
@@ -8,12 +17,12 @@ import {
   type FormEvent,
 } from "react";
 
-import { useAuth } from "../../context/AuthContext";
 import { PostsList } from "../../components";
 import { PostModal } from "../../components/PostModal/PostModal";
+import { useAuth } from "../../context/AuthContext";
+import { ProfileEditForm } from "./ProfileEditForm";
 import { ProfileHeader } from "./ProfileHeader";
 import { ProfileView } from "./ProfileView";
-import { ProfileEditForm } from "./ProfileEditForm";
 import { useStyles } from "./style";
 
 import type { PostFormValues, UpsertPost } from "../../requests/posts";
@@ -40,7 +49,6 @@ const getImageUrl = (profileImage?: string | null) => {
   return `${API_BASE_URL}${profileImage}`;
 };
 
-// TODO: להוסיף כאן את כל המידע שרלוונטי לפרופיל, כמו התגובות שכתב המשתמש וכו'
 export const Profile = () => {
   const classes = useStyles();
   const { user, updateProfile } = useAuth();
@@ -57,12 +65,13 @@ export const Profile = () => {
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const userId = user?.id || user?._id;
+  const userId = user?._id || "";
 
   const { data: userPosts, isLoading } = useGetPostsByUserId(userId ?? "");
   const { mutateAsync: addPost, isPending: isCreatingPost } = useCreatePost();
   const { mutateAsync: editPost, isPending: isEditingPost } = useUpdatePost();
-  const { mutateAsync: deletePost, isPending: isDeletingPost } = useDeletePost();
+  const { mutateAsync: deletePost, isPending: isDeletingPost } =
+    useDeletePost();
 
   useEffect(() => {
     if (user) {
@@ -176,22 +185,25 @@ export const Profile = () => {
     closeModal();
   };
 
-  const handleEditPost = async (postId: string, updatedPost: PostFormValues) => {
+  const handleEditPost = async (
+    postId: string,
+    updatedPost: PostFormValues,
+  ) => {
     if (!userId) return;
 
     const originalPost = userPosts?.find((post) => post.id === postId);
 
     const payload: UpsertPost = {
       ...updatedPost,
-      createdBy: String(originalPost?.createdBy?.id ?? userId),
+      createdBy: String(originalPost?.createdBy?._id ?? userId),
     };
 
     await editPost({ postId, payload });
     closeModal();
   };
 
-  const handleDeletePost = async (post: Post) => {
-    await deletePost(post.id);
+  const handleDeletePost = (post: Post) => {
+    deletePost(post.id);
 
     if (selectedPost?.id === post.id) {
       setSelectedPost(undefined);
@@ -216,16 +228,10 @@ export const Profile = () => {
           />
 
           <Box className={classes.content}>
-            {error && (
-              <Alert severity="error" className={classes.alert}>
-                {error}
-              </Alert>
-            )}
+            {error && <Alert severity="error">{error}</Alert>}
 
             {successMessage && (
-              <Alert severity="success" className={classes.alert}>
-                {successMessage}
-              </Alert>
+              <Alert severity="success">{successMessage}</Alert>
             )}
 
             {!isEditing ? (

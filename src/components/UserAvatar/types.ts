@@ -1,3 +1,5 @@
+import type { User } from "../../types";
+
 export interface UserAvatarProps {
-  username: string;
+  user?: User;
 }
