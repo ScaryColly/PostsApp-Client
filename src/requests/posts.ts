@@ -21,3 +21,11 @@ export const updatePost = async (postId: string, payload: UpsertPost) => {
 export const createPost = async (payload: UpsertPost) => {
   return apiClient.post<Post>("/posts", payload);
 };
+
+export const deletePost = async (postId: string) => {
+  return apiClient.delete<void>(`/posts/${postId}`);
+};
+
+export const getPostsByUserId = async (userId: string) => {
+  return apiClient.get<Post[]>(`/posts?createdBy=${userId}`);
+};
