@@ -25,10 +25,6 @@ const normalizeUrl = (url: string): string => {
     return url;
   }
 
-  if (url.startsWith("local://")) {
-    return `http://localhost:${url.slice("local://".length)}`;
-  }
-
   const baseUrl =
     import.meta.env.VITE_API_BASE_URL?.trim() || DEFAULT_API_BASE_URL;
 
@@ -58,16 +54,26 @@ const request = async <T>(
   const { headers, body, signal } = options;
   const resolvedUrl = normalizeUrl(url);
 
+  const accessToken = localStorage.getItem("accessToken");
+  const isFormData = body instanceof FormData;
+
   let response: Response;
+
   try {
     response = await fetch(resolvedUrl, {
       method,
       signal,
       headers: {
-        "Content-Type": "application/json",
+        ...(isFormData ? {} : { "Content-Type": "application/json" }),
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
         ...headers,
       },
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body:
+        body === undefined
+          ? undefined
+          : isFormData
+            ? body
+            : JSON.stringify(body),
     });
   } catch {
     throw new Error(
@@ -95,21 +101,25 @@ const request = async <T>(
 export const apiClient = {
   get: <T>(url: string, options?: Omit<RequestOptions, "body">) =>
     request<T>("GET", url, options),
+
   post: <T>(
     url: string,
     body?: unknown,
     options?: Omit<RequestOptions, "body">,
   ) => request<T>("POST", url, { ...options, body }),
+
   put: <T>(
     url: string,
     body?: unknown,
     options?: Omit<RequestOptions, "body">,
   ) => request<T>("PUT", url, { ...options, body }),
+
   patch: <T>(
     url: string,
     body?: unknown,
     options?: Omit<RequestOptions, "body">,
   ) => request<T>("PATCH", url, { ...options, body }),
+
   delete: <T>(url: string, options?: Omit<RequestOptions, "body">) =>
     request<T>("DELETE", url, options),
 };
