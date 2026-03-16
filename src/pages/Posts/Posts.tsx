@@ -6,16 +6,12 @@ import type { PostFormValues, UpsertPost } from "../../requests/posts";
 import { useCreatePost } from "./queries/createPost";
 import { useGetAllPosts } from "./queries/getAllPosts";
 import { useStyles } from "./style";
-
-export const TEMP_CONNECTED_USER_STORAGE_KEY = "connectedUserId";
-export const TEMP_FALLBACK_CONNECTED_USER_ID = "69b7f525dac444ef606f3565";
-
-const getConnectedUserId = () => {
-  const id = window.localStorage.getItem(TEMP_CONNECTED_USER_STORAGE_KEY);
-  return id?.trim() || TEMP_FALLBACK_CONNECTED_USER_ID;
-};
+import { useAuth } from "../../context/AuthContext";
 
 export const Posts = () => {
+  const { user } = useAuth();
+
+  const getConnectedUserId = () => user?._id || "";
   const classes = useStyles();
 
   const { data: posts = [], isLoading } = useGetAllPosts();

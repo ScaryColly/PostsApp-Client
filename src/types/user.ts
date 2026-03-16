@@ -1,5 +1,16 @@
+export type AuthProvider = "local" | "google";
+
 export type User = {
-  id: number;
+  _id: string;
   username: string;
   email: string;
+  profileImage?: string | null;
+  authProvider: AuthProvider;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type AuthResponse = User & {
+  accessToken: string;
+  refreshToken: string;
 };
