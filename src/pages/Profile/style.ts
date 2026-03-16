@@ -78,7 +78,7 @@ export const useStyles = () => {
     title: css({
       marginTop: "0.7rem",
       fontSize: "1.6rem",
-      fontWeight: 700,
+      fontWeight: "bold",
       color: theme.palette.primary.main,
       textAlign: "center",
     }),
@@ -239,5 +239,17 @@ export const useStyles = () => {
       color: `${theme.palette.primary.main} !important`,
       flex: 1,
     }),
+     container: css({
+      backgroundColor: theme.palette.background.default,
+      height: "100%",
+      padding: "2rem",
+    }),
+    button: css({
+      position: "fixed",
+      top: "10rem",
+      left: "10rem",
+    }),
+
   };
 };
+
