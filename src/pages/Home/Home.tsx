@@ -8,20 +8,18 @@ export const Home = () => {
     <Box>
       <Box className={classes.container}>
         <Typography className={classes.title}>Study App</Typography>
-        <Typography>Why study alone? Join a community of learners!</Typography>
+        <Typography>למה ללמוד לבד? הצטרפו לקהילה של לומדים!</Typography>
         <Typography>
-          Here you can connect with other students, share resources, and
-          collaborate on projects.
+          כאן תוכלו להתחבר עם סטודנטים אחרים, לשתף משאבים, ולשתף פעולה
+          בפרויקטים.
         </Typography>
         <Typography>
-          Share your homework, ask for help, or just chat about your studies.
-          Let's make learning more fun and social together!
+          שתפו את שיעורי הבית שלכם, בקשו עזרה, או פשוט שוחחו על הלימודים שלכם.
+          בואו נעשה את הלמידה למהנה וחברתית יותר יחד!
         </Typography>
       </Box>
       <Box className={classes.secondaryContainer}>
-        <Typography className={classes.secondaryTitle}>
-          Our Resources
-        </Typography>
+        <Typography className={classes.secondaryTitle}>המשאבים שלנו</Typography>
       </Box>
     </Box>
   );

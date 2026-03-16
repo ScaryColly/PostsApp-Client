@@ -20,7 +20,7 @@ export const useStyles = () => {
       padding: "1rem",
     }),
     secondaryTitle: css({
-      fontFamily: "sans-serif",
+      fontFamily: '"Playpen Sans Hebrew", sans-serif',
       fontSize: "1.8rem",
       fontWeight: "bold",
     }),
