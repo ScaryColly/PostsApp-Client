@@ -1,12 +1,12 @@
 import { StyledEngineProvider, ThemeProvider } from "@mui/material/styles";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
 import { Navbar } from "./components";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
-import { Home, Login, Posts, Profile, Register } from "./pages";
+import { Comments, Home, Login, Posts, Profile, Register } from "./pages";
 import { theme } from "./theme";
 
 const queryClient = new QueryClient();
@@ -23,6 +23,10 @@ export const App = () => {
                 <Routes>
                   <Route path="/" element={<Home />} />
                   <Route path="/posts" element={<Posts />} />
+                  <Route
+                    path="/posts/:postId/comments"
+                    element={<Comments />}
+                  />
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
                   <Route

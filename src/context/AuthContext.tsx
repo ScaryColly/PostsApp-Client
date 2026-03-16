@@ -14,7 +14,7 @@ import {
   register as registerRequest,
   updateMe as updateMeRequest,
 } from "../requests/auth";
-import type { LoginPayload } from "../types/auth";
+import type { LoginPayload, RegisterPayload } from "../types/auth";
 import type { User } from "../types/user";
 
 type AuthContextType = {
@@ -22,7 +22,7 @@ type AuthContextType = {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (payload: LoginPayload) => Promise<void>;
-  register: (formData: FormData) => Promise<void>;
+  register: (payload: RegisterPayload) => Promise<void>;
   googleLogin: (idToken: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshCurrentUser: () => Promise<void>;
@@ -118,8 +118,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(userData);
   };
 
-  const register = async (formData: FormData) => {
-    const response = await registerRequest(formData);
+  const register = async (payload: RegisterPayload) => {
+    const response = await registerRequest(payload);
     const userData = mapUserFromAuthResponse(response);
 
     saveAuthData(userData, response.accessToken, response.refreshToken);
