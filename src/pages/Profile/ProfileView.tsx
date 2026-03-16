@@ -13,10 +13,18 @@ type ProfileViewProps = {
     username?: string;
     email?: string;
   };
+  postsCount: number;
+  joinYear: string;
   onEdit: () => void;
 };
 
-export const ProfileView = ({ classes, user, onEdit }: ProfileViewProps) => {
+export const ProfileView = ({
+  classes,
+  user,
+  postsCount,
+  joinYear,
+  onEdit,
+}: ProfileViewProps) => {
   return (
     <Stack spacing={2}>
       <Paper elevation={0} className={classes.sectionCard}>
@@ -46,14 +54,14 @@ export const ProfileView = ({ classes, user, onEdit }: ProfileViewProps) => {
           <ProfileStatCard
             classes={classes}
             icon={<ArticleRoundedIcon />}
-            value="24"
+            value={String(postsCount)}
             label="פוסטים"
           />
 
           <ProfileStatCard
             classes={classes}
             icon={<CalendarMonthRoundedIcon />}
-            value="2026"
+            value={joinYear}
             label="שנת הצטרפות"
           />
         </Box>

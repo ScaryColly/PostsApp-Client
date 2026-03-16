@@ -95,6 +95,17 @@ export const Profile = () => {
     };
   }, [previewUrl]);
 
+  const postsCount = userPosts?.length ?? 0;
+
+  const joinYear = useMemo(() => {
+    if (!user?.createdAt) return "-";
+
+    const date = new Date(user.createdAt);
+    if (Number.isNaN(date.getTime())) return "-";
+
+    return String(date.getFullYear());
+  }, [user?.createdAt]);
+
   const resetMessages = () => {
     setError("");
     setSuccessMessage("");
@@ -238,6 +249,8 @@ export const Profile = () => {
               <ProfileView
                 classes={classes}
                 user={user}
+                postsCount={postsCount}
+                joinYear={joinYear}
                 onEdit={handleStartEdit}
               />
             ) : (
