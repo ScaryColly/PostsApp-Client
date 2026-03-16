@@ -1,32 +1,10 @@
-import {
-  Alert,
-  Avatar,
-  Box,
-  CircularProgress,
-  IconButton,
-  Paper,
-  Stack,
-  TextField,
-  Typography,
-  Button,
-  Divider,
-} from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
-import EmailRoundedIcon from "@mui/icons-material/EmailRounded";
-import ArticleRoundedIcon from "@mui/icons-material/ArticleRounded";
-import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ChangeEvent,
-  type FormEvent,
-  type ReactNode,
-} from "react";
+import { Alert, Box, Paper } from "@mui/material";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useStyles } from "./style";
+import { ProfileHeader } from "./ProfileHeader";
+import { ProfileView } from "./ProfileView";
+import { ProfileEditForm } from "./ProfileEditForm";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
@@ -64,10 +42,7 @@ export const Profile = () => {
   }, [user]);
 
   const previewUrl = useMemo(() => {
-    if (selectedFile) {
-      return URL.createObjectURL(selectedFile);
-    }
-
+    if (selectedFile) return URL.createObjectURL(selectedFile);
     return getImageUrl(user?.profileImage);
   }, [selectedFile, user?.profileImage]);
 
@@ -79,23 +54,26 @@ export const Profile = () => {
     };
   }, [previewUrl, selectedFile]);
 
-  const handleStartEdit = () => {
-    setIsEditing(true);
+  const resetMessages = () => {
     setError("");
     setSuccessMessage("");
+  };
+
+  const handleStartEdit = () => {
+    setIsEditing(true);
+    resetMessages();
     setSelectedFile(null);
     setUsername(user?.username || "");
   };
 
   const handleCancelEdit = () => {
     setIsEditing(false);
-    setError("");
-    setSuccessMessage("");
+    resetMessages();
     setSelectedFile(null);
     setUsername(user?.username || "");
   };
 
-  const handleAvatarEditClick = () => {
+  const handleAvatarClick = () => {
     if (!isEditing) {
       handleStartEdit();
       return;
@@ -105,14 +83,12 @@ export const Profile = () => {
   };
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    setSelectedFile(file);
+    setSelectedFile(e.target.files?.[0] || null);
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setError("");
-    setSuccessMessage("");
+    resetMessages();
 
     if (!username.trim()) {
       setError("Username is required");
@@ -147,35 +123,15 @@ export const Profile = () => {
     <Box className={classes.outerContainer}>
       <Box className={classes.pageWrapper}>
         <Paper elevation={4} className={classes.paper}>
-          <Box className={classes.banner} />
-
-          <Box className={classes.avatarSection}>
-            <Box className={classes.avatarWrapper}>
-              <Avatar src={previewUrl || undefined} className={classes.avatar}>
-                {username?.[0]?.toUpperCase() || user.username?.[0]?.toUpperCase()}
-              </Avatar>
-
-              <IconButton
-                onClick={handleAvatarEditClick}
-                className={classes.avatarEditButton}
-              >
-                <EditIcon fontSize="small" />
-              </IconButton>
-
-              <input
-                ref={fileInputRef}
-                className={classes.hiddenInput}
-                accept="image/*"
-                type="file"
-                onChange={handleFileChange}
-              />
-            </Box>
-
-            <Typography className={classes.title}>הפרופיל שלי</Typography>
-            <Typography className={classes.subtitle}>
-              כאן אפשר לצפות ולעדכן את פרטי המשתמש שלך
-            </Typography>
-          </Box>
+          <ProfileHeader
+            classes={classes}
+            previewUrl={previewUrl}
+            username={username}
+            fallbackUsername={user.username}
+            fileInputRef={fileInputRef}
+            onAvatarClick={handleAvatarClick}
+            onFileChange={handleFileChange}
+          />
 
           <Box className={classes.content}>
             {error && (
@@ -191,146 +147,24 @@ export const Profile = () => {
             )}
 
             {!isEditing ? (
-              <Stack spacing={2}>
-                <Paper elevation={0} className={classes.sectionCard}>
-                  <Typography className={classes.sectionTitle}>
-                    פרטי משתמש
-                  </Typography>
-
-                  <InfoRow
-                    classes={classes}
-                    icon={<PersonRoundedIcon />}
-                    label="שם משתמש"
-                    value={user.username}
-                  />
-
-                  <Divider className={classes.divider} />
-
-                  <InfoRow
-                    classes={classes}
-                    icon={<EmailRoundedIcon />}
-                    label="אימייל"
-                    value={user.email}
-                  />
-                </Paper>
-
-                <Paper elevation={0} className={classes.sectionCard}>
-                  <Typography className={classes.sectionTitle}>סטטיסטיקות</Typography>
-
-                  <Box className={classes.statsGrid}>
-                    <StatCard
-                      classes={classes}
-                      icon={<ArticleRoundedIcon />}
-                      value="24"
-                      label="פוסטים"
-                    />
-
-                    <StatCard
-                      classes={classes}
-                      icon={<CalendarMonthRoundedIcon />}
-                      value="2026"
-                      label="שנת הצטרפות"
-                    />
-                  </Box>
-                </Paper>
-
-                <Box className={classes.actionsRow}>
-                  <Button
-                    variant="contained"
-                    onClick={handleStartEdit}
-                    className={classes.primaryButton}
-                  >
-                    עריכת פרופיל
-                  </Button>
-                </Box>
-              </Stack>
+              <ProfileView
+                classes={classes}
+                user={user}
+                onEdit={handleStartEdit}
+              />
             ) : (
-              <Paper elevation={0} className={classes.sectionCard}>
-                <Box component="form" onSubmit={handleSubmit}>
-                  <Stack spacing={2}>
-                    <Typography className={classes.sectionTitle}>
-                      עריכת פרופיל
-                    </Typography>
-
-                    <TextField
-                      label="שם משתמש"
-                      fullWidth
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      className={classes.textField}
-                    />
-
-                    <Typography className={classes.formNote}>
-                      לחצי על אייקון העיפרון שעל תמונת הפרופיל כדי לבחור תמונה חדשה
-                    </Typography>
-
-                    <Box className={classes.actionsRow}>
-                      <Button
-                        type="submit"
-                        variant="contained"
-                        disabled={isSubmitting}
-                        className={classes.primaryButton}
-                      >
-                        {isSubmitting ? (
-                          <CircularProgress size={24} color="inherit" />
-                        ) : (
-                          "שמור שינויים"
-                        )}
-                      </Button>
-
-                      <Button
-                        type="button"
-                        variant="outlined"
-                        onClick={handleCancelEdit}
-                        className={classes.secondaryButton}
-                      >
-                        בטל
-                      </Button>
-                    </Box>
-                  </Stack>
-                </Box>
-              </Paper>
+              <ProfileEditForm
+                classes={classes}
+                username={username}
+                isSubmitting={isSubmitting}
+                onUsernameChange={setUsername}
+                onSubmit={handleSubmit}
+                onCancel={handleCancelEdit}
+              />
             )}
           </Box>
         </Paper>
       </Box>
-    </Box>
-  );
-};
-
-type InfoRowProps = {
-  classes: ReturnType<typeof useStyles>;
-  icon: ReactNode;
-  label: string;
-  value?: string;
-};
-
-const InfoRow = ({ classes, icon, label, value }: InfoRowProps) => {
-  return (
-    <Box className={classes.infoRow}>
-      <Box className={classes.infoLeft}>
-        <Box className={classes.infoIconBox}>{icon}</Box>
-        <Typography className={classes.infoLabel}>{label}</Typography>
-      </Box>
-
-      <Typography className={classes.infoValue}>{value || "-"}</Typography>
-    </Box>
-  );
-};
-
-type StatCardProps = {
-  classes: ReturnType<typeof useStyles>;
-  icon: ReactNode;
-  value: string;
-  label: string;
-};
-
-const StatCard = ({ classes, icon, value, label }: StatCardProps) => {
-  return (
-    <Box className={classes.statCard}>
-      <Box className={classes.statIconBox}>{icon}</Box>
-      <Typography className={classes.statValue}>{value}</Typography>
-      <Typography className={classes.statLabel}>{label}</Typography>
     </Box>
   );
 };
