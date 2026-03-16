@@ -47,11 +47,11 @@ export const PostModal: FC<PostModalProps> = ({
     };
 
     if (post && isEditMode && onEditPost) {
-      await onEditPost(post.id, payload);
+      onEditPost(post.id, payload);
     }
 
     if ((!post || !isEditMode) && onCreatePost) {
-      await onCreatePost(payload);
+      onCreatePost(payload);
     }
 
     handleClose();
@@ -74,65 +74,42 @@ export const PostModal: FC<PostModalProps> = ({
           {modalTitle}
         </Typography>
 
-        {post && !isEditMode ? (
-          <>
-            <Typography variant="h5" gutterBottom>
-              {post.title}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" gutterBottom>
-              נכתב על ידי {post.createdBy.username}
-            </Typography>
-            <Typography
-              id="modal-modal-description"
-              variant="body1"
-              className={classes.viewContent}
+        <Box component="form" className={classes.form} onSubmit={onSubmit}>
+          <TextField
+            className={classes.input}
+            name="title"
+            label="כותרת"
+            defaultValue={post?.title ?? ""}
+            fullWidth
+            required
+          />
+          <TextField
+            className={classes.input}
+            name="content"
+            label="תוכן"
+            defaultValue={post?.content ?? ""}
+            fullWidth
+            required
+            multiline
+            minRows={4}
+          />
+          <Box className={classes.footer}>
+            <Button
+              variant="text"
+              onClick={handleClose}
+              disabled={isSubmitting}
             >
-              {post.content}
-            </Typography>
-            <Box className={classes.footer}>
-              <Button variant="outlined" onClick={handleClose}>
-                סגירה
-              </Button>
-            </Box>
-          </>
-        ) : (
-          <Box component="form" className={classes.form} onSubmit={onSubmit}>
-            <TextField
-              className={classes.input}
-              name="title"
-              label="כותרת"
-              defaultValue={post?.title ?? ""}
-              fullWidth
-              required
-            />
-            <TextField
-              className={classes.input}
-              name="content"
-              label="תוכן"
-              defaultValue={post?.content ?? ""}
-              fullWidth
-              required
-              multiline
-              minRows={4}
-            />
-            <Box className={classes.footer}>
-              <Button
-                variant="text"
-                onClick={handleClose}
-                disabled={isSubmitting}
-              >
-                ביטול
-              </Button>
-              <Button
-                type="submit"
-                variant="contained"
-                disabled={isSubmitDisabled}
-              >
-                {post ? "שמירה" : "יצירה"}
-              </Button>
-            </Box>
+              ביטול
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={isSubmitDisabled}
+            >
+              {post ? "שמירה" : "יצירה"}
+            </Button>
           </Box>
-        )}
+        </Box>
       </Box>
     </Modal>
   );

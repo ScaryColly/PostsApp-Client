@@ -14,12 +14,12 @@ export const getAllPosts = async () => {
   return apiClient.get<Post[]>("/posts");
 };
 
-export const updatePost = async (postId: string, payload: UpsertPost) => {
-  return apiClient.put<Post>(`/posts/${postId}`, payload);
+export const updatePost = async (postId: string, post: UpsertPost) => {
+  return apiClient.put<Post>(`/posts/${postId}`, post);
 };
 
-export const createPost = async (payload: UpsertPost) => {
-  return apiClient.post<Post>("/posts", payload);
+export const createPost = async (post: UpsertPost) => {
+  return apiClient.post<Post>("/posts", post);
 };
 
 export const deletePost = async (postId: string) => {
@@ -28,4 +28,8 @@ export const deletePost = async (postId: string) => {
 
 export const getPostsByUserId = async (userId: string) => {
   return apiClient.get<Post[]>(`/posts?createdBy=${userId}`);
+};
+
+export const getCommentCount = async (postId: string) => {
+  return apiClient.get<number>(`/posts/${postId}/comments/count`);
 };
