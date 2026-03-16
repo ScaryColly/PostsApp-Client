@@ -15,13 +15,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useStyles } from "./style";
 
-
 export const Login = () => {
   const { login, googleLogin } = useAuth();
   const navigate = useNavigate();
   const classes = useStyles();
 
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -31,15 +30,15 @@ export const Login = () => {
     e.preventDefault();
     setError("");
 
-    if (!email.trim() || !password.trim()) {
-      setError("יש למלא אימייל וסיסמה");
+    if (!username.trim() || !password.trim()) {
+      setError("יש למלא שם משתמש וסיסמה");
       return;
     }
 
     try {
       setIsSubmitting(true);
       await login({
-        email: email.trim(),
+        username: username.trim(),
         password,
       });
       navigate("/profile");
@@ -51,7 +50,12 @@ export const Login = () => {
   };
 
   return (
-    <Stack alignItems="center" justifyContent="center" sx={{ py: 6, px: 2 }} className={classes.stack}>
+    <Stack
+      alignItems="center"
+      justifyContent="center"
+      sx={{ py: 6, px: 2 }}
+      className={classes.stack}
+    >
       <Paper elevation={3} sx={{ width: "100%", maxWidth: 520, p: 4, borderRadius: 4 }}>
         <Typography variant="h4" fontWeight="bold" gutterBottom textAlign="center">
           התחברות
@@ -70,11 +74,10 @@ export const Login = () => {
         <Box component="form" onSubmit={handleSubmit}>
           <Stack spacing={2}>
             <TextField
-              label="אימייל"
-              type="email"
+              label="שם משתמש"
               fullWidth
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             />
 
             <TextField
@@ -85,12 +88,7 @@ export const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
             />
 
-            <Button
-              type="submit"
-              variant="contained"
-              size="large"
-              disabled={isSubmitting}
-            >
+            <Button type="submit" variant="contained" size="large" disabled={isSubmitting}>
               {isSubmitting ? <CircularProgress size={24} color="inherit" /> : "התחברות"}
             </Button>
 

@@ -24,7 +24,12 @@ export const Post: FC<PostProps> = ({
   const { data: commentCount = 0 } = useGetCommentCount(id);
   const { user } = useAuth();
 
-  const { data: postUser } = useGetUserById(createdBy);
+  const createdById =
+  typeof createdBy === "string"
+    ? createdBy
+    : createdBy?._id;
+  
+  const { data: postUser } = useGetUserById(createdById);
 
   const handleEdit = () => {
     onEditClick?.();

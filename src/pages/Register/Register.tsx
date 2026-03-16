@@ -13,32 +13,29 @@ import {
 import { GoogleLogin } from "@react-oauth/google";
 import { useMemo, useState, type ChangeEvent, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import type { RegisterPayload } from "../../types/auth";
-import { useGoogleRegister } from "./queries/googleRegister";
 import { useRegister } from "./queries/register";
+import { useGoogleRegister } from "./queries/googleRegister";
 import { useStyles } from "./style";
 
 export const Register = () => {
   const navigate = useNavigate();
   const classes = useStyles();
+
   const {
-    mutate: registerUser,
+    mutateAsync: registerUser,
     isPending: isSubmitting,
-    isError,
   } = useRegister();
+
   const { mutate: registerWithGoogle, isPending: isGoogleSubmitting } =
     useGoogleRegister();
 
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [error, setError] = useState("");
 
   const previewUrl = useMemo(() => {
-    if (!selectedFile) {
-      return "";
-    }
+    if (!selectedFile) return "";
     return URL.createObjectURL(selectedFile);
   }, [selectedFile]);
 
@@ -47,12 +44,12 @@ export const Register = () => {
     setSelectedFile(file);
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
 
-    if (!username.trim() || !email.trim() || !password.trim()) {
-      setError("יש למלא שם משתמש, אימייל וסיסמה");
+    if (!username.trim() || !password.trim()) {
+      setError("יש למלא שם משתמש וסיסמה");
       return;
     }
 
@@ -61,57 +58,45 @@ export const Register = () => {
       return;
     }
 
-    const payload: RegisterPayload = {
-      username: username.trim(),
-      email: email.trim(),
-      password,
-      profileImage: null,
-    };
+    try {
+      const formData = new FormData();
+      formData.append("username", username.trim());
+      formData.append("password", password);
 
-    registerUser(payload);
+      if (selectedFile) {
+        formData.append("profileImage", selectedFile);
+      }
+
+      await registerUser(formData);
+      navigate("/profile");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "ההרשמה נכשלה");
+    }
   };
 
   return (
-    <Stack
-      alignItems="center"
-      justifyContent="center"
-      sx={{ py: 6, px: 2 }}
-      className={classes.stack}
-    >
-      <Paper
-        elevation={3}
-        sx={{ width: "100%", maxWidth: 520, p: 4, borderRadius: 4 }}
-      >
-        <Typography
-          variant="h4"
-          fontWeight="bold"
-          gutterBottom
-          textAlign="center"
-        >
-          הרשמה
-        </Typography>
+    <Stack className={classes.stack}>
+      <Paper elevation={3} className={classes.paper}>
+        <Typography className={classes.title}>הרשמה</Typography>
 
-        <Typography variant="body1" textAlign="center" sx={{ mb: 3 }}>
+        <Typography className={classes.subtitle}>
           יצירת חשבון חדש למערכת
         </Typography>
 
-        {(error || isError) && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
-          </Alert>
-        )}
+        {error && <Alert severity="error">{error}</Alert>}
 
-        <Box component="form" onSubmit={handleSubmit}>
-          <Stack spacing={2}>
-            <Stack alignItems="center" spacing={1}>
-              <Avatar
-                src={previewUrl || undefined}
-                sx={{ width: 88, height: 88 }}
-              >
+        <Box component="form" onSubmit={handleSubmit} className={classes.form}>
+          <Stack className={classes.contentStack}>
+            <Box className={classes.avatarSection}>
+              <Avatar src={previewUrl || undefined} className={classes.avatar}>
                 {username?.[0]?.toUpperCase()}
               </Avatar>
 
-              <Button variant="outlined" component="label">
+              <Button
+                variant="outlined"
+                component="label"
+                className={classes.uploadButton}
+              >
                 העלאת תמונת פרופיל
                 <input
                   hidden
@@ -120,21 +105,14 @@ export const Register = () => {
                   onChange={handleFileChange}
                 />
               </Button>
-            </Stack>
+            </Box>
 
             <TextField
               label="שם משתמש"
               fullWidth
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-            />
-
-            <TextField
-              label="אימייל"
-              type="email"
-              fullWidth
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              className={classes.input}
             />
 
             <TextField
@@ -143,16 +121,17 @@ export const Register = () => {
               fullWidth
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className={classes.input}
             />
 
             <Button
               type="submit"
               variant="contained"
-              size="large"
               disabled={isSubmitting}
+              className={classes.submitButton}
             >
               {isSubmitting ? (
-                <CircularProgress size={24} color="inherit" />
+                <CircularProgress size={22} color="inherit" />
               ) : (
                 "הרשמה"
               )}
@@ -160,7 +139,7 @@ export const Register = () => {
 
             <Divider>או</Divider>
 
-            <Box display="flex" justifyContent="center">
+            <Box className={classes.googleWrapper}>
               {isGoogleSubmitting ? (
                 <CircularProgress />
               ) : (
@@ -193,7 +172,7 @@ export const Register = () => {
               )}
             </Box>
 
-            <Typography textAlign="center">
+            <Typography className={classes.bottomText}>
               כבר יש לך חשבון?{" "}
               <Link to="/login" style={{ textDecoration: "none" }}>
                 להתחברות

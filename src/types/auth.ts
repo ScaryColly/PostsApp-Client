@@ -1,14 +1,13 @@
 export interface LoginPayload {
-  email: string;
+  username: string;
   password: string;
 }
 
-export interface RegisterPayload {
+export type RegisterPayload = {
   username: string;
-  email: string;
   password: string;
-  profileImage?: string | null;
-}
+  profileImage?: File | null;
+};
 
 export interface UpdateProfilePayload {
   username: string;
