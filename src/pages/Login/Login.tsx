@@ -12,19 +12,23 @@ import {
 import { GoogleLogin } from "@react-oauth/google";
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { useGoogleLogin } from "./queries/googleLogin";
+import { useLogin } from "./queries/login";
 import { useStyles } from "./style";
 
 export const Login = () => {
-  const { login, googleLogin } = useAuth();
   const navigate = useNavigate();
   const classes = useStyles();
+
+  const { mutateAsync: loginUser, isPending: isSubmitting } = useLogin();
+  const {
+    mutate: loginWithGoogle,
+    isPending: isGoogleSubmitting,
+  } = useGoogleLogin();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -36,16 +40,14 @@ export const Login = () => {
     }
 
     try {
-      setIsSubmitting(true);
-      await login({
+      await loginUser({
         username: username.trim(),
         password,
       });
+
       navigate("/profile");
     } catch (err) {
       setError(err instanceof Error ? err.message : "התחברות נכשלה");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -56,8 +58,16 @@ export const Login = () => {
       sx={{ py: 6, px: 2 }}
       className={classes.stack}
     >
-      <Paper elevation={3} sx={{ width: "100%", maxWidth: 520, p: 4, borderRadius: 4 }}>
-        <Typography variant="h4" fontWeight="bold" gutterBottom textAlign="center">
+      <Paper
+        elevation={3}
+        sx={{ width: "100%", maxWidth: 520, p: 4, borderRadius: 4 }}
+      >
+        <Typography
+          variant="h4"
+          fontWeight="bold"
+          gutterBottom
+          textAlign="center"
+        >
           התחברות
         </Typography>
 
@@ -88,8 +98,17 @@ export const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
             />
 
-            <Button type="submit" variant="contained" size="large" disabled={isSubmitting}>
-              {isSubmitting ? <CircularProgress size={24} color="inherit" /> : "התחברות"}
+            <Button
+              type="submit"
+              variant="contained"
+              size="large"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                "התחברות"
+              )}
             </Button>
 
             <Divider>או</Divider>
@@ -99,24 +118,26 @@ export const Login = () => {
                 <CircularProgress />
               ) : (
                 <GoogleLogin
-                  onSuccess={async (credentialResponse) => {
-                    try {
-                      setError("");
-                      setIsGoogleSubmitting(true);
+                  onSuccess={(credentialResponse) => {
+                    setError("");
 
-                      if (!credentialResponse.credential) {
-                        throw new Error("Google token not received");
-                      }
-
-                      await googleLogin(credentialResponse.credential);
-                      navigate("/profile");
-                    } catch (err) {
-                      setError(
-                        err instanceof Error ? err.message : "Google login failed",
-                      );
-                    } finally {
-                      setIsGoogleSubmitting(false);
+                    if (!credentialResponse.credential) {
+                      setError("Google token not received");
+                      return;
                     }
+
+                    loginWithGoogle(credentialResponse.credential, {
+                      onSuccess: () => {
+                        navigate("/profile");
+                      },
+                      onError: (err) => {
+                        setError(
+                          err instanceof Error
+                            ? err.message
+                            : "Google login failed",
+                        );
+                      },
+                    });
                   }}
                   onError={() => {
                     setError("ההתחברות עם גוגל נכשלה");
