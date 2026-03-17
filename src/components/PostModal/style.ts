@@ -58,9 +58,11 @@ export const useStyles = () => {
     previewImage: css({
       width: "100%",
       maxHeight: "18rem",
-      objectFit: "cover",
+      objectFit: "contain",
+      display: "block",
       borderRadius: theme.spacing(1),
       border: `1px solid ${theme.palette.divider}`,
+      backgroundColor: theme.palette.grey[100],
     }),
   };
 };
