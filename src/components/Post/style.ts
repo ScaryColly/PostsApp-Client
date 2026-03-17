@@ -18,5 +18,13 @@ export const useStyles = () => {
     title: css({
       fontWeight: 600,
     }),
+    postImage: css({
+      width: "100%",
+      maxHeight: "22rem",
+      objectFit: "cover",
+      borderRadius: "0.75rem",
+      marginTop: "0.5rem",
+      border: "1px solid #e0e0e0",
+    }),
   };
 };

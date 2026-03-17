@@ -3,4 +3,6 @@ export type Post = {
   title: string;
   content: string;
   createdBy: string;
+  likes: string[];
+  image?: string;
 };
