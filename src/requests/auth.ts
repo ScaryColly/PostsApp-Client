@@ -27,8 +27,12 @@ export const register = async (payload: RegisterPayload) => {
   return apiClient.post<AuthResponse>("/users/register", formData);
 };
 
+export const googleRegisterRequest = async (idToken: string) => {
+  return apiClient.post<AuthResponse>("/users/google-register", { idToken });
+};
+
 export const googleLogin = async (idToken: string) => {
-  return apiClient.post<AuthResponse>("/users/google", { idToken });
+  return apiClient.post<AuthResponse>("/users/google-login", { idToken });
 };
 
 export const getMe = async () => {
@@ -36,7 +40,7 @@ export const getMe = async () => {
 };
 
 export const updateMe = async (formData: FormData) => {
-  return apiClient.put<User>("/users/me", formData, {});
+  return apiClient.put<User>("/users/me", formData);
 };
 
 export const logout = async (payload: LogoutPayload) => {
@@ -45,7 +49,7 @@ export const logout = async (payload: LogoutPayload) => {
 
 export const refreshToken = async (refreshTokenValue: string) => {
   return apiClient.post<{ accessToken: string; refreshToken: string }>(
-    "/users/refresh-token",
+    "/users/refresh",
     { refreshToken: refreshTokenValue },
   );
 };

@@ -22,9 +22,10 @@ export const Register = () => {
   const classes = useStyles();
 
   const { mutateAsync: registerUser, isPending: isSubmitting } = useRegister();
-
-  const { mutate: registerWithGoogle, isPending: isGoogleSubmitting } =
-    useGoogleRegister();
+  const {
+    mutate: registerWithGoogle,
+    isPending: isGoogleSubmitting,
+  } = useGoogleRegister();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -61,6 +62,7 @@ export const Register = () => {
         password,
         profileImage: selectedFile,
       });
+
       navigate("/profile");
     } catch (err) {
       setError(err instanceof Error ? err.message : "ההרשמה נכשלה");
