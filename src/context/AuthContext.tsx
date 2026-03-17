@@ -9,6 +9,7 @@ import {
 import {
   getMe,
   googleLogin as googleLoginRequest,
+  googleRegisterRequest,
   login as loginRequest,
   logout as logoutRequest,
   register as registerRequest,
@@ -24,6 +25,7 @@ type AuthContextType = {
   login: (payload: LoginPayload) => Promise<void>;
   register: (payload: RegisterPayload) => Promise<void>;
   googleLogin: (idToken: string) => Promise<void>;
+  googleRegister: (idToken: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshCurrentUser: () => Promise<void>;
   updateProfile: (formData: FormData) => Promise<void>;
@@ -134,6 +136,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(userData);
   };
 
+  const googleRegister = async (idToken: string) => {
+    const response = await googleRegisterRequest(idToken);
+    const userData = mapUserFromAuthResponse(response);
+
+    saveAuthData(userData, response.accessToken, response.refreshToken);
+    setUser(userData);
+  };
+
   const updateProfile = async (formData: FormData) => {
     const updatedUser = await updateMeRequest(formData);
     setUser(updatedUser);
@@ -161,6 +171,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       login,
       register,
       googleLogin,
+      googleRegister,
       logout,
       refreshCurrentUser,
       updateProfile,
