@@ -95,6 +95,15 @@ export const PostModal: FC<PostModalProps> = ({
     handleModalClose();
   };
 
+  const handleContentKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== "Enter" || event.shiftKey) {
+      return;
+    }
+
+    event.preventDefault();
+    event.currentTarget.closest("form")?.requestSubmit();
+  };
+
   return (
     <Modal
       open={isOpen}
@@ -130,6 +139,7 @@ export const PostModal: FC<PostModalProps> = ({
             required
             multiline
             minRows={4}
+            onKeyDown={handleContentKeyDown}
           />
           <Button component="label" variant="outlined">
             {selectedFile ? "החלפת תמונה" : "העלאת תמונה"}

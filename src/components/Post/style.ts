@@ -18,6 +18,12 @@ export const useStyles = () => {
     title: css({
       fontWeight: 600,
     }),
+    createdAtLabel: css({
+      display: "block",
+      marginTop: "0.75rem",
+      color: "#6b7280",
+      fontSize: "0.75rem",
+    }),
     postImage: css({
       width: "100%",
       maxHeight: "22rem",
