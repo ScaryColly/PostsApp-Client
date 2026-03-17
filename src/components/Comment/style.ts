@@ -18,6 +18,10 @@ export const useStyles = () => {
       borderRadius: "0.75rem",
       width: "100%",
     }),
+    contentWrapper: css({
+      flex: 1,
+      minWidth: 0,
+    }),
     commentContent: css({
       marginTop: "0.25rem",
     }),

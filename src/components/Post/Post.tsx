@@ -16,7 +16,7 @@ import { useStyles } from "./style";
 import type { PostProps } from "./types";
 
 export const Post: FC<PostProps> = ({
-  post: { id, title, content, createdBy, image, likes },
+  post: { id, title, content, createdBy, createdAt, image, likes },
   onClick,
   onEditClick,
   onDeleteClick,
@@ -34,6 +34,12 @@ export const Post: FC<PostProps> = ({
   const { data: postUser } = useGetUserById(createdBy);
   const likesCount = likes?.length ?? 0;
   const isLikedByUser = !!user?._id && likes?.includes(user._id);
+  const formattedCreatedAt = Number.isNaN(new Date(createdAt).getTime())
+    ? createdAt
+    : new Intl.DateTimeFormat("he-IL", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      }).format(new Date(createdAt));
 
   const resolvedImage = !image
     ? ""
@@ -92,6 +98,9 @@ export const Post: FC<PostProps> = ({
               className={classes.postImage}
             />
           )}
+          <Typography className={classes.createdAtLabel} variant="caption">
+            {formattedCreatedAt}
+          </Typography>
         </Box>
         {!!user && (
           <Stack

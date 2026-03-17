@@ -34,5 +34,20 @@ export const useStyles = () => {
     title: css({
       fontWeight: "bold",
     }),
+    input: css({
+      direction: "rtl",
+      "& .MuiInputLabel-root": {
+        right: theme.spacing(3),
+        left: "auto",
+        transformOrigin: "top right",
+      },
+      "& .MuiInputBase-input": {
+        direction: "rtl",
+        textAlign: "right",
+      },
+      "& .MuiOutlinedInput-notchedOutline legend": {
+        textAlign: "right",
+      },
+    }),
   };
 };
