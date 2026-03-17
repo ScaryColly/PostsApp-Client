@@ -83,6 +83,7 @@ export const Posts = () => {
     const newPost: UpsertPost = {
       ...post,
       createdBy: user?._id || "",
+      createdAt: new Date().toISOString(),
     };
 
     addPost(newPost);
@@ -128,6 +129,7 @@ export const Posts = () => {
             helperText={validationErrors.query}
             required
             fullWidth
+            className={classes.input}
             size="small"
           />
         </Stack>

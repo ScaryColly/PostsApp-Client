@@ -13,6 +13,7 @@ import { Comment } from "../../components/Comment";
 import { useAuth } from "../../context/AuthContext";
 import { useCreateComment } from "./queries/createComment";
 import { useGetCommentsByPostId } from "./queries/getCommentsByPostId";
+import { useUpdateComment } from "./queries/updateComment";
 import { useStyles } from "./style";
 
 export const Comments = () => {
@@ -24,8 +25,11 @@ export const Comments = () => {
   const { data: comments = [], isLoading } = useGetCommentsByPostId(postId);
   const { mutateAsync: addComment, isPending: isSubmitting } =
     useCreateComment();
+  const { mutateAsync: editComment, isPending: isEditingComment } =
+    useUpdateComment();
 
   const [newComment, setNewComment] = useState("");
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
 
   const handleSubmit = () => {
     const trimmed = newComment.trim();
@@ -37,6 +41,35 @@ export const Comments = () => {
       createdBy: user?._id || "",
     });
     setNewComment("");
+  };
+
+  const handleNewCommentKeyDown = (
+    event: React.KeyboardEvent<HTMLDivElement>,
+  ) => {
+    if (event.key !== "Enter" || event.shiftKey) {
+      return;
+    }
+
+    event.preventDefault();
+    handleSubmit();
+  };
+
+  const handleEditComment = async (commentId: string, message: string) => {
+    if (!postId) {
+      return;
+    }
+
+    setEditingCommentId(commentId);
+
+    try {
+      await editComment({
+        postId,
+        commentId,
+        message,
+      });
+    } finally {
+      setEditingCommentId(null);
+    }
   };
 
   return (
@@ -59,6 +92,7 @@ export const Comments = () => {
           label="כתוב תגובה..."
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
+          onKeyDown={handleNewCommentKeyDown}
           disabled={isSubmitting}
         />
         <Button
@@ -86,7 +120,13 @@ export const Comments = () => {
       ) : (
         <Stack gap={2}>
           {comments.map((comment) => (
-            <Comment key={comment._id} comment={comment} />
+            <Comment
+              key={comment._id}
+              comment={comment}
+              canEdit={comment.createdBy === user?._id}
+              isSaving={isEditingComment && editingCommentId === comment._id}
+              onEdit={handleEditComment}
+            />
           ))}
         </Stack>
       )}
