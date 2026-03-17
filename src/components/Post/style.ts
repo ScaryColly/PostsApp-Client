@@ -21,10 +21,12 @@ export const useStyles = () => {
     postImage: css({
       width: "100%",
       maxHeight: "22rem",
-      objectFit: "cover",
+      objectFit: "contain",
+      display: "block",
       borderRadius: "0.75rem",
       marginTop: "0.5rem",
       border: "1px solid #e0e0e0",
+      backgroundColor: "#f7f7f7",
     }),
   };
 };

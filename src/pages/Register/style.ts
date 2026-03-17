@@ -16,6 +16,7 @@ export const useStyles = () => {
       padding: "1rem",
       overflow: "hidden",
       boxSizing: "border-box",
+      height: "100%",
     }),
 
     paper: css({

@@ -13,18 +13,15 @@ import {
 import { GoogleLogin } from "@react-oauth/google";
 import { useMemo, useState, type ChangeEvent, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useRegister } from "./queries/register";
 import { useGoogleRegister } from "./queries/googleRegister";
+import { useRegister } from "./queries/register";
 import { useStyles } from "./style";
 
 export const Register = () => {
   const navigate = useNavigate();
   const classes = useStyles();
 
-  const {
-    mutateAsync: registerUser,
-    isPending: isSubmitting,
-  } = useRegister();
+  const { mutateAsync: registerUser, isPending: isSubmitting } = useRegister();
 
   const { mutate: registerWithGoogle, isPending: isGoogleSubmitting } =
     useGoogleRegister();
@@ -59,15 +56,11 @@ export const Register = () => {
     }
 
     try {
-      const formData = new FormData();
-      formData.append("username", username.trim());
-      formData.append("password", password);
-
-      if (selectedFile) {
-        formData.append("profileImage", selectedFile);
-      }
-
-      await registerUser(formData);
+      await registerUser({
+        username: username.trim(),
+        password,
+        profileImage: selectedFile,
+      });
       navigate("/profile");
     } catch (err) {
       setError(err instanceof Error ? err.message : "ההרשמה נכשלה");
