@@ -9,6 +9,7 @@ export interface PostFormValues {
 
 export interface UpsertPost extends PostFormValues {
   createdBy: string;
+  createdAt?: string;
 }
 
 const toPostFormData = (post: UpsertPost) => {
@@ -17,6 +18,10 @@ const toPostFormData = (post: UpsertPost) => {
   formData.append("title", post.title);
   formData.append("content", post.content);
   formData.append("createdBy", post.createdBy);
+
+  if (post.createdAt) {
+    formData.append("createdAt", post.createdAt);
+  }
 
   if (post.imageFile) {
     formData.append("image", post.imageFile);
