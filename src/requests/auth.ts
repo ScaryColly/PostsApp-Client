@@ -9,14 +9,21 @@ export type AuthResponse = User & {
 
 export type LogoutPayload = {
   refreshToken: string;
-  
 };
 
 export const login = async (payload: LoginPayload) => {
   return apiClient.post<AuthResponse>("/users/login", payload);
 };
 
-export const register = async (formData: FormData) => {
+export const register = async (payload: RegisterPayload) => {
+  const formData = new FormData();
+  formData.append("username", payload.username);
+  formData.append("password", payload.password);
+
+  if (payload.profileImage) {
+    formData.append("profileImage", payload.profileImage);
+  }
+
   return apiClient.post<AuthResponse>("/users/register", formData);
 };
 
@@ -29,8 +36,7 @@ export const getMe = async () => {
 };
 
 export const updateMe = async (formData: FormData) => {
-  return apiClient.put<User>("/users/me", formData, {
-  });
+  return apiClient.put<User>("/users/me", formData, {});
 };
 
 export const logout = async (payload: LogoutPayload) => {
