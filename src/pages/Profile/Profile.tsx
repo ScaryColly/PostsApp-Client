@@ -206,7 +206,7 @@ export const Profile = () => {
 
     const payload: UpsertPost = {
       ...updatedPost,
-      createdBy: String(originalPost?.createdBy?._id ?? userId),
+        createdBy: String(originalPost?.createdBy ?? userId),
     };
 
     await editPost({ postId, payload });

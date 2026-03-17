@@ -55,5 +55,12 @@ export const useStyles = () => {
         textAlign: "right",
       },
     }),
+    previewImage: css({
+      width: "100%",
+      maxHeight: "18rem",
+      objectFit: "cover",
+      borderRadius: theme.spacing(1),
+      border: `1px solid ${theme.palette.divider}`,
+    }),
   };
 };
