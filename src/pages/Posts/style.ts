@@ -49,5 +49,14 @@ export const useStyles = () => {
         textAlign: "right",
       },
     }),
+    secondaryText: css({
+      direction: "rtl",
+      width: "100%",
+    }),
+    link: css({
+      cursor: "pointer",
+      color: "#BB7DFF",
+      textDecoration: "underline",
+    }),
   };
 };
