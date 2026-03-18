@@ -2,6 +2,7 @@ import {
   Alert,
   Box,
   Button,
+  Link,
   Skeleton,
   Stack,
   TextField,
@@ -107,6 +108,7 @@ export const Posts = () => {
         <Typography className={classes.title} variant="h4" gutterBottom>
           כל הפוסטים
         </Typography>
+
         {!!user && (
           <Tooltip placement="top" title="הוספת פוסט חדש">
             <Button variant="contained" onClick={openCreatePostModal}>
@@ -115,6 +117,19 @@ export const Posts = () => {
           </Tooltip>
         )}
       </Stack>
+      {!user && (
+        <Typography
+          className={classes.secondaryText}
+          variant="body1"
+          color="textSecondary"
+        >
+          אנא{" "}
+          <Link className={classes.link} onClick={() => navigate("/login")}>
+            התחבר/י
+          </Link>{" "}
+          כדי ליצור פוסטים, לבצע חיפוש חכם ולגשת לכל הפיצ'רים
+        </Typography>
+      )}
       {!!user && (
         <Box
           component="form"
