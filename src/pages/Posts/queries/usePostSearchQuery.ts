@@ -8,7 +8,7 @@ export type UsePostSearchParams = {
 
 export const getPostSearchResetKey = (query: string) => {
   return JSON.stringify({
-    query: query.trim(),
+    query,
   });
 };
 
@@ -16,20 +16,20 @@ export const usePostSearchQuery = ({
   query,
   limit = 20,
 }: UsePostSearchParams) => {
-  const trimmedQuery = query.trim();
+  const hasMeaningfulQuery = query.trim().length > 0;
 
   return useInfiniteQuery({
-    queryKey: ["posts", "search", trimmedQuery, limit],
+    queryKey: ["posts", "search", query, limit],
     queryFn: ({ pageParam = 1 }) =>
       searchPosts({
-        query: trimmedQuery,
+        query,
         page: pageParam,
         limit,
       }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.hasMore ? lastPage.page + 1 : undefined,
-    enabled: trimmedQuery.length > 0,
+    enabled: hasMeaningfulQuery,
     staleTime: 15_000,
     retry: (attemptCount, error) => {
       if (error instanceof SearchPostsError) {

@@ -97,7 +97,7 @@ export const Posts = () => {
 
   const handleSearchSubmit = (event?: React.FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
-    setActiveQuery(queryInput.trim());
+    setActiveQuery(queryInput);
   };
 
   const handleSearchReset = () => {
