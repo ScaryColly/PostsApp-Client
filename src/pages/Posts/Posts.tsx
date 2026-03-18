@@ -115,33 +115,39 @@ export const Posts = () => {
           </Tooltip>
         )}
       </Stack>
-      <Box
-        component="form"
-        onSubmit={handleSearchSubmit}
-        className={classes.searchForm}
-      >
-        <Stack className={classes.searchGrid}>
-          <TextField
-            label="חיפוש פוסטים"
-            value={queryInput}
-            onChange={(event) => setQueryInput(event.target.value)}
-            error={Boolean(validationErrors.query)}
-            helperText={validationErrors.query}
-            required
-            fullWidth
-            className={classes.input}
-            size="small"
-          />
-        </Stack>
-        <Stack direction="row" gap={1.5} mt={2}>
-          <Button type="submit" variant="contained">
-            חפש
-          </Button>
-          <Button type="button" variant="outlined" onClick={handleSearchReset}>
-            נקה
-          </Button>
-        </Stack>
-      </Box>
+      {!!user && (
+        <Box
+          component="form"
+          onSubmit={handleSearchSubmit}
+          className={classes.searchForm}
+        >
+          <Stack className={classes.searchGrid}>
+            <TextField
+              label="חיפוש פוסטים"
+              value={queryInput}
+              onChange={(event) => setQueryInput(event.target.value)}
+              error={Boolean(validationErrors.query)}
+              helperText={validationErrors.query}
+              required
+              fullWidth
+              className={classes.input}
+              size="small"
+            />
+          </Stack>
+          <Stack direction="row" gap={1.5} mt={2}>
+            <Button type="submit" variant="contained">
+              חפש
+            </Button>
+            <Button
+              type="button"
+              variant="outlined"
+              onClick={handleSearchReset}
+            >
+              נקה
+            </Button>
+          </Stack>
+        </Box>
+      )}
       {hasSearchFallback && (
         <Alert severity="info" className={classes.fallbackBanner}>
           שימוש בפרשנות חיפוש חלופית
