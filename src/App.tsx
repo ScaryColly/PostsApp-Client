@@ -25,7 +25,11 @@ export const App = () => {
                   <Route path="/posts" element={<Posts />} />
                   <Route
                     path="/posts/:postId/comments"
-                    element={<Comments />}
+                    element={
+                      <ProtectedRoute>
+                        <Comments />
+                      </ProtectedRoute>
+                    }
                   />
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />

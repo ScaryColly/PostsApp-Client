@@ -6,4 +6,7 @@ export interface PostsListProps {
   onEditClick?: (post: Post) => void;
   onDeleteClick?: (post: Post) => void;
   pageSize?: number;
+  hasMore?: boolean;
+  isLoadingMore?: boolean;
+  onLoadMore?: () => void;
 }

@@ -11,6 +11,9 @@ export const PostsList = ({
   onEditClick,
   onDeleteClick,
   pageSize = DEFAULT_PAGE_SIZE,
+  hasMore = false,
+  isLoadingMore = false,
+  onLoadMore,
 }: PostsListProps) => {
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const [visiblePostsCount, setVisiblePostsCount] = useState(pageSize);
@@ -20,10 +23,11 @@ export const PostsList = ({
     () => posts.slice(0, clampedVisibleCount),
     [posts, clampedVisibleCount],
   );
-  const hasMorePosts = clampedVisibleCount < posts.length;
+  const hasMoreLocalPosts = clampedVisibleCount < posts.length;
+  const shouldRenderLoadTrigger = hasMoreLocalPosts || hasMore;
 
   useEffect(() => {
-    if (!hasMorePosts || !loadMoreRef.current) {
+    if (!shouldRenderLoadTrigger || !loadMoreRef.current) {
       return;
     }
 
@@ -35,9 +39,16 @@ export const PostsList = ({
           return;
         }
 
-        setVisiblePostsCount((previousCount) =>
-          Math.min(previousCount + pageSize, posts.length),
-        );
+        if (hasMoreLocalPosts) {
+          setVisiblePostsCount((previousCount) =>
+            Math.min(previousCount + pageSize, posts.length),
+          );
+          return;
+        }
+
+        if (hasMore && !isLoadingMore) {
+          onLoadMore?.();
+        }
       },
       {
         root: null,
@@ -49,7 +60,15 @@ export const PostsList = ({
     observer.observe(loadMoreRef.current);
 
     return () => observer.disconnect();
-  }, [hasMorePosts, pageSize, posts.length]);
+  }, [
+    shouldRenderLoadTrigger,
+    hasMoreLocalPosts,
+    hasMore,
+    isLoadingMore,
+    onLoadMore,
+    pageSize,
+    posts.length,
+  ]);
 
   if (posts.length === 0) {
     return <Typography>עוד לא פורסמו פוסטים</Typography>;
@@ -67,7 +86,7 @@ export const PostsList = ({
           isEditable={Boolean(onEditClick || onDeleteClick)}
         />
       ))}
-      {hasMorePosts && (
+      {shouldRenderLoadTrigger && (
         <Box ref={loadMoreRef} sx={{ py: 2 }}>
           <CircularProgress size={28} />
         </Box>

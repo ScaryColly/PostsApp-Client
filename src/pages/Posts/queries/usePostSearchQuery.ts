@@ -1,9 +1,8 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { searchPosts, SearchPostsError } from "../../../requests/postSearch";
 
 export type UsePostSearchParams = {
   query: string;
-  page: number;
   limit?: number;
 };
 
@@ -15,21 +14,22 @@ export const getPostSearchResetKey = (query: string) => {
 
 export const usePostSearchQuery = ({
   query,
-  page,
   limit = 20,
 }: UsePostSearchParams) => {
   const trimmedQuery = query.trim();
 
-  return useQuery({
-    queryKey: ["posts", "search", trimmedQuery, page, limit],
-    queryFn: () =>
+  return useInfiniteQuery({
+    queryKey: ["posts", "search", trimmedQuery, limit],
+    queryFn: ({ pageParam = 1 }) =>
       searchPosts({
         query: trimmedQuery,
-        page,
+        page: pageParam,
         limit,
       }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasMore ? lastPage.page + 1 : undefined,
     enabled: trimmedQuery.length > 0,
-    placeholderData: keepPreviousData,
     staleTime: 15_000,
     retry: (attemptCount, error) => {
       if (error instanceof SearchPostsError) {
