@@ -9,7 +9,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PostsList } from "../../components";
 import { PostModal } from "../../components/PostModal/PostModal";
@@ -33,7 +33,6 @@ export const Posts = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [queryInput, setQueryInput] = useState("");
   const [activeQuery, setActiveQuery] = useState("");
-  const [page, setPage] = useState(1);
 
   const { mutateAsync: addPost, isPending: isCreatingPost } = useCreatePost();
 
@@ -41,11 +40,13 @@ export const Posts = () => {
     data: searchData,
     isFetching: isSearching,
     isPending: isSearchPending,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
     error: searchError,
     refetch: retrySearch,
   } = usePostSearchQuery({
     query: activeQuery,
-    page,
     limit: SEARCH_PAGE_LIMIT,
   });
 
@@ -64,12 +65,16 @@ export const Posts = () => {
       : {};
 
   const isSearchMode = activeQuery.trim().length > 0;
-  const postsToRender = isSearchMode ? (searchData?.items ?? []) : posts;
-  const hasSearchFallback = Boolean(searchData?.meta.fallbackUsed);
-  const canGoToNextSearchPage = Boolean(searchData?.hasMore);
-  const canGoToPreviousSearchPage = page > 1;
+  const searchItems = useMemo(
+    () => searchData?.pages.flatMap((pageResult) => pageResult.items) ?? [],
+    [searchData],
+  );
+  const postsToRender = isSearchMode ? searchItems : posts;
+  const hasSearchFallback = Boolean(
+    searchData?.pages.some((pageResult) => pageResult.meta.fallbackUsed),
+  );
   const shouldShowLoading = isSearchMode
-    ? isSearchPending || isSearching
+    ? (isSearchPending || isSearching) && searchItems.length === 0
     : isLoading || isCreatingPost;
 
   const openCreatePostModal = () => {
@@ -93,13 +98,11 @@ export const Posts = () => {
   const handleSearchSubmit = (event?: React.FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
     setActiveQuery(queryInput.trim());
-    setPage(1);
   };
 
   const handleSearchReset = () => {
     setQueryInput("");
     setActiveQuery("");
-    setPage(1);
   };
 
   return (
@@ -108,7 +111,6 @@ export const Posts = () => {
         <Typography className={classes.title} variant="h4" gutterBottom>
           כל הפוסטים
         </Typography>
-
         {!!user && (
           <Tooltip placement="top" title="הוספת פוסט חדש">
             <Button variant="contained" onClick={openCreatePostModal}>
@@ -191,33 +193,24 @@ export const Posts = () => {
       {shouldShowLoading ? (
         <Skeleton variant="rounded" height={200} />
       ) : (
-        <PostsList posts={postsToRender} />
+        <PostsList
+          posts={postsToRender}
+          hasMore={isSearchMode ? Boolean(hasNextPage) : false}
+          isLoadingMore={isSearchMode ? isFetchingNextPage : false}
+          onLoadMore={
+            isSearchMode
+              ? () => {
+                  void fetchNextPage();
+                }
+              : undefined
+          }
+        />
       )}
       {isSearchMode && (
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="center"
-          mt={2}
-          gap={2}
-        >
-          <Button
-            variant="outlined"
-            onClick={() =>
-              setPage((previousPage) => Math.max(1, previousPage - 1))
-            }
-            disabled={!canGoToPreviousSearchPage || isSearching}
-          >
-            Previous
-          </Button>
-          <Typography>Page {searchData?.page || page}</Typography>
-          <Button
-            variant="outlined"
-            onClick={() => setPage((previousPage) => previousPage + 1)}
-            disabled={!canGoToNextSearchPage || isSearching}
-          >
-            Next
-          </Button>
+        <Stack alignItems="center" justifyContent="center" mt={2} gap={1}>
+          {!hasNextPage && searchItems.length > 0 && (
+            <Typography color="text.secondary">הגעת לסוף התוצאות</Typography>
+          )}
         </Stack>
       )}
       <PostModal
