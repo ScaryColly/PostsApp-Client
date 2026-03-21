@@ -4,18 +4,18 @@ export const theme = createTheme({
   palette: {
     primary: {
       main: "#161616",
-      contrastText: "#FDE6FF",
+      contrastText: "#f3e8ff",
     },
     secondary: {
-      main: "#FDE6FF",
+      main: "#F3E8FF",
       contrastText: "#161616",
     },
     background: {
-      default: "#f5f5f5",
+      default: "#F3E8FF",
       paper: "#ffffff",
     },
   },
   typography: {
-    fontFamily: '"DynaPuff", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Playpen Sans Hebrew", sans-serif',
   },
 });
